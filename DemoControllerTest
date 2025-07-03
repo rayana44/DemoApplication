@@ -1,0 +1,60 @@
+package com.example.demo;
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+
+import com.example.demo.controller.DemoController;
+
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+@WebMvcTest(DemoController.class)
+public class DemoControllerTest {
+	
+		@Autowired
+		private MockMvc mockMvc;
+		
+		@Test
+		void testRemove() throws Exception
+		{
+			mockMvc.perform(get("/get/remove?input=Hello")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("ell"));
+			mockMvc.perform(get("/get/remove?input=SpringBoot")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("pringBoo"));
+		}
+		
+		@Test
+		void testShortString() throws Exception
+		{
+			mockMvc.perform(get("/get/remove?input=H")).andExpect(status().isBadRequest());
+		
+			mockMvc.perform(get("/get/remove?input=HE")).andExpect(status().isBadRequest());
+			
+			mockMvc.perform(get("/get/remove?input=HEl")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("E"));
+			
+		}
+		
+		@Test
+		void testSpecialString() throws Exception
+		{
+			mockMvc.perform(get("/get/remove?input=234")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("3"));
+		
+			mockMvc.perform(get("/get/remove?input=#Hell0#")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("Hell0"));
+			
+			mockMvc.perform(get("/get/remove?input=#$%()#")).andExpect(status().isOk())
+			.andExpect((ResultMatcher) content().string("$%()"));
+			
+		}
+		
+	
+
+}
